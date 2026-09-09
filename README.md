@@ -12,10 +12,8 @@ Browser / Frontend  →  API Gateway  →  Lambda (backend/app.py)  →  DynamoD
 ```
 
 See `docs/project-guide.md` for the full architecture diagram, API design,
-sample data record, and extension ideas. See
-`project-themes/problem-statements.md` for the eight assignable project
-themes (CampusFix, FindIt, GreenCampus, EventHub, VolunteerConnect, IdeaBox,
-LocalHelp, StudyShare).
+sample data record, and extension ideas. Your project theme will be
+assigned separately.
 
 ## Quick start (Day 2)
 
@@ -61,8 +59,6 @@ cloudvidya-serverless-starter/
 ├── docs/
 │   ├── architecture.png
 │   └── project-guide.md     full API design, sample record, deploy steps
-├── project-themes/
-│   └── problem-statements.md
 ├── template.yaml             SAM template (DynamoDB, Lambda, API Gateway)
 ├── samconfig.toml.example
 ├── README.md

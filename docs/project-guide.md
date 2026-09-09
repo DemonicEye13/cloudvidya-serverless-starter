@@ -36,8 +36,7 @@ dashboards — is an optional extension for Challenge 3, not a requirement.
 }
 ```
 
-Add or remove fields to fit your theme (see
-`project-themes/problem-statements.md`) — just keep `id` and `createdAt`,
+Add or remove fields to fit your theme — just keep `id` and `createdAt`,
 since the frontend and the sort order in `_list_items()` both depend on them.
 
 ## Deployment flow (Day 2)
