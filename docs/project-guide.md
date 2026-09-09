@@ -63,8 +63,8 @@ since the frontend and the sort order in `_list_items()` both depend on them.
    groups** for your Lambda function to see the requests you just made.
 10. Make one visible change, push it, and watch Amplify redeploy — this is
     the "Git push = deploy" workflow the whole exercise is demonstrating.
-11. Save your repository URL, deployed URL, and this architecture diagram —
-    you'll need all three for the final submission.
+11. Save your repository URL and deployed URL — you'll need both for the
+    final submission.
 
 ## Extending for Challenge 3 (optional — open book)
 
