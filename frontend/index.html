@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CloudVidya Starter</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1 id="appTitle">CloudVidya Starter</h1>
+    <p>Frontend &rarr; API Gateway &rarr; Lambda &rarr; DynamoDB</p>
+  </header>
+  <main>
+    <div class="card">
+      <strong>Submit a new item</strong>
+      <div class="flow">
+        <span>1. Browser</span><span>&rarr;</span><span>2. API Gateway</span><span>&rarr;</span><span>3. Lambda</span><span>&rarr;</span><span>4. DynamoDB</span>
+      </div>
+      <label for="title">Title</label>
+      <input id="title" type="text" placeholder="e.g. Broken classroom projector" />
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Describe the issue or idea..."></textarea>
+      <label for="category">Category</label>
+      <select id="category">
+        <option>Infrastructure</option>
+        <option>Academic</option>
+        <option>Event</option>
+        <option>Other</option>
+      </select>
+      <label for="participantName">Your name</label>
+      <input id="participantName" type="text" placeholder="e.g. Priya Shah" />
+      <button id="submitBtn">Submit</button>
+      <div id="status"></div>
+    </div>
+
+    <div class="card">
+      <strong>Recent items (live from DynamoDB)</strong>
+      <div id="list" style="margin-top: 10px;">Loading&hellip;</div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

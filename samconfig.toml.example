@@ -1,0 +1,13 @@
+# Copy this file to samconfig.toml (that filename is gitignored — it's
+# account-specific) and fill in your own values, OR just run
+# `sam deploy --guided` once and let SAM generate samconfig.toml for you.
+
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "cloudvidya-yourname"
+resolve_s3 = true
+s3_prefix = "cloudvidya-yourname"
+region = "ap-south-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
