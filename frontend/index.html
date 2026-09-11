@@ -1,43 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CloudVidya Starter</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EventHub — Campus Events & Registrations</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1 id="appTitle">CloudVidya Starter</h1>
-    <p>Frontend &rarr; API Gateway &rarr; Lambda &rarr; DynamoDB</p>
+    <h1 id="app-name">EventHub</h1>
+    <p id="tagline">Register for college activities and events.</p>
+    <span id="status-badge" class="badge">Checking API...</span>
   </header>
-  <main>
-    <div class="card">
-      <strong>Submit a new item</strong>
-      <div class="flow">
-        <span>1. Browser</span><span>&rarr;</span><span>2. API Gateway</span><span>&rarr;</span><span>3. Lambda</span><span>&rarr;</span><span>4. DynamoDB</span>
-      </div>
-      <label for="title">Title</label>
-      <input id="title" type="text" placeholder="e.g. Broken classroom projector" />
-      <label for="description">Description</label>
-      <textarea id="description" placeholder="Describe the issue or idea..."></textarea>
-      <label for="category">Category</label>
-      <select id="category">
-        <option>Infrastructure</option>
-        <option>Academic</option>
-        <option>Event</option>
-        <option>Other</option>
-      </select>
-      <label for="participantName">Your name</label>
-      <input id="participantName" type="text" placeholder="e.g. Priya Shah" />
-      <button id="submitBtn">Submit</button>
-      <div id="status"></div>
-    </div>
 
-    <div class="card">
-      <strong>Recent items (live from DynamoDB)</strong>
-      <div id="list" style="margin-top: 10px;">Loading&hellip;</div>
-    </div>
+  <nav class="tabs">
+    <button id="tab-attendee">🎟️ Register</button>
+    <button id="tab-organizer">📋 Organizer Dashboard</button>
+  </nav>
+
+  <main>
+    <!-- Attendee view: register for an event -->
+    <section id="attendee-view" class="card">
+      <h2>Register for an event</h2>
+      <form id="registration-form">
+        <label for="event-title">Event name *</label>
+        <input id="event-title" name="eventTitle" required placeholder="e.g. Annual Tech Fest" />
+
+        <label for="event-description">Description</label>
+        <textarea id="event-description" name="description" placeholder="What's this event about?"></textarea>
+
+        <div class="row">
+          <div>
+            <label for="event-category">Category</label>
+            <select id="event-category" name="category"></select>
+          </div>
+          <div>
+            <label for="event-date">Date</label>
+            <input id="event-date" name="eventDate" type="date" />
+          </div>
+        </div>
+
+        <label for="event-venue">Venue</label>
+        <input id="event-venue" name="venue" placeholder="e.g. Main Auditorium" />
+
+        <div class="row">
+          <div>
+            <label for="student-name">Your name *</label>
+            <input id="student-name" name="studentName" required placeholder="Full name" />
+          </div>
+          <div>
+            <label for="student-email">Your email</label>
+            <input id="student-email" name="studentEmail" type="email" placeholder="you@college.edu" />
+          </div>
+        </div>
+
+        <button type="submit">Register</button>
+        <div id="register-feedback" class="feedback"></div>
+      </form>
+    </section>
+
+    <!-- Organizer view: manage registrations -->
+    <section id="organizer-view" class="card hidden">
+      <h2>Registrations</h2>
+      <div class="filters">
+        <select id="filter-status"></select>
+        <select id="filter-category"></select>
+        <button id="refresh-btn">Refresh</button>
+      </div>
+      <div id="registration-list"></div>
+    </section>
   </main>
 
   <script src="config.js"></script>
