@@ -1,32 +1,21 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  CloudVidya starter project — Frontend -> API Gateway -> Lambda -> DynamoDB.
-  One Lambda function (backend/app.py) routes every request itself, matching
-  the Day 2 "Backend walkthrough" session.
+  EventHub backend — register students for college activities and events.
+  Frontend -> API Gateway -> Lambda -> DynamoDB, same shape as the
+  CloudVidya reference architecture, with PATCH /items/{id} added.
 
 Globals:
   Function:
-    Runtime: python3.12
     Timeout: 10
     MemorySize: 128
-    Environment:
-      Variables:
-        TABLE_NAME: !Ref ItemsTable
-  Api:
-    Cors:
-      AllowMethods: "'GET,POST,PATCH,OPTIONS'"
-      AllowHeaders: "'Content-Type'"
-      AllowOrigin: "'*'"
+    Runtime: python3.12
 
 Resources:
-  # ---------------------------------------------------------------
-  # DynamoDB
-  # ---------------------------------------------------------------
-  ItemsTable:
+  EventHubTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${AWS::StackName}-items"
+      TableName: !Sub "${AWS::StackName}-eventhub"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
@@ -35,52 +24,58 @@ Resources:
         - AttributeName: id
           KeyType: HASH
 
-  # ---------------------------------------------------------------
-  # Lambda — one function, routes GET /health, POST /items, GET /items,
-  # PATCH /items/{id}. SAM auto-generates a least-privilege role, scoped
-  # to only this table.
-  # ---------------------------------------------------------------
-  ApiFunction:
+  EventHubFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: app.handler
       CodeUri: backend/
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventHubTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref ItemsTable
+            TableName: !Ref EventHubTable
       Events:
-        HealthApi:
+        Health:
           Type: Api
           Properties:
             Path: /health
-            Method: get
-        CreateItemApi:
+            Method: GET
+        CreateRegistration:
           Type: Api
           Properties:
             Path: /items
-            Method: post
-        ListItemsApi:
+            Method: POST
+        ListRegistrations:
           Type: Api
           Properties:
             Path: /items
-            Method: get
-        UpdateItemApi:
+            Method: GET
+        UpdateRegistration:
           Type: Api
           Properties:
             Path: /items/{id}
-            Method: patch
-
-  # ---------------------------------------------------------------
-  # Frontend hosting note: this template does NOT create an Amplify app.
-  # Day 2's agenda connects this repo to Amplify Hosting through the AWS
-  # Console (Amplify > Host web app > pick this GitHub repo) so students
-  # see the Git-push-to-deploy flow directly — see docs/project-guide.md.
-  # ---------------------------------------------------------------
+            Method: PATCH
+        Preflight:
+          Type: Api
+          Properties:
+            Path: /items
+            Method: OPTIONS
+        PreflightWithId:
+          Type: Api
+          Properties:
+            Path: /items/{id}
+            Method: OPTIONS
+        HealthPreflight:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: OPTIONS
 
 Outputs:
   ApiUrl:
-    Description: API Gateway base URL — paste this into frontend/config.js as API_BASE
+    Description: "Invoke URL — paste this into frontend/config.js as API_BASE_URL"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
-  ItemsTableName:
-    Description: DynamoDB table name — open this in the console during the live demo
-    Value: !Ref ItemsTable
+  TableName:
+    Description: "DynamoDB table name"
+    Value: !Ref EventHubTable
