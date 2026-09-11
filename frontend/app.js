@@ -2,12 +2,21 @@
 // Two views share one API:
 //   Attendee view -> POST /items  (register for an event)
 //   Organizer view -> GET /items, PATCH /items/{id} (manage registrations)
+//
+// Organizer view adds client-side search (by event title or student name)
+// and pagination on top of the status/category filters the API already
+// supports server-side.
+
+const PAGE_SIZE = 5;
 
 const state = {
   view: "attendee", // "attendee" | "organizer"
-  registrations: [],
+  registrations: [], // full filtered-by-API list, before search/pagination
   statusFilter: "",
   categoryFilter: "",
+  searchTerm: "",
+  page: 1,
+  lastUpdatedId: null, // drives the "just updated" highlight animation
 };
 
 function apiUrl(path) {
@@ -43,6 +52,7 @@ function init() {
   document.getElementById("filter-status").addEventListener("change", handleFilterChange);
   document.getElementById("filter-category").addEventListener("change", handleFilterChange);
   document.getElementById("refresh-btn").addEventListener("click", loadRegistrations);
+  document.getElementById("search-input").addEventListener("input", handleSearchInput);
 
   switchView("attendee");
   checkHealth();
@@ -122,7 +132,17 @@ async function handleRegister(e) {
 function handleFilterChange() {
   state.statusFilter = document.getElementById("filter-status").value;
   state.categoryFilter = document.getElementById("filter-category").value;
+  state.page = 1;
   loadRegistrations();
+}
+
+let searchDebounceTimer = null;
+function handleSearchInput(e) {
+  state.searchTerm = e.target.value.trim().toLowerCase();
+  state.page = 1;
+  // Debounce so we're not re-rendering on every keystroke.
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(renderRegistrations, 150);
 }
 
 async function loadRegistrations() {
@@ -139,21 +159,40 @@ async function loadRegistrations() {
     state.registrations = data.items || [];
     renderRegistrations();
   } catch (err) {
-    list.innerHTML = `<p class="feedback error">${err.message}</p>`;
+    list.innerHTML = `<p class="feedback error visible">${err.message}</p>`;
   }
+}
+
+function getFilteredRegistrations() {
+  if (!state.searchTerm) return state.registrations;
+  return state.registrations.filter((reg) => {
+    const haystack = `${reg.eventTitle || ""} ${reg.studentName || ""}`.toLowerCase();
+    return haystack.includes(state.searchTerm);
+  });
 }
 
 function renderRegistrations() {
   const list = document.getElementById("registration-list");
-  if (state.registrations.length === 0) {
-    list.innerHTML = `<p class="muted">No registrations yet.</p>`;
+  const pagination = document.getElementById("pagination");
+  const filtered = getFilteredRegistrations();
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<p class="muted">No registrations match.</p>`;
+    pagination.innerHTML = "";
     return;
   }
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  state.page = Math.min(state.page, totalPages);
+  const start = (state.page - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
   list.innerHTML = "";
-  state.registrations.forEach((reg) => {
+  pageItems.forEach((reg, i) => {
     const card = document.createElement("div");
     card.className = "reg-card";
+    card.style.animationDelay = `${i * 40}ms`;
+    if (reg.id === state.lastUpdatedId) card.classList.add("just-updated");
     card.innerHTML = `
       <div class="reg-card-header">
         <span class="pill">${reg.category || "Other"}</span>
@@ -178,6 +217,44 @@ function renderRegistrations() {
     });
     list.appendChild(card);
   });
+
+  state.lastUpdatedId = null;
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const pagination = document.getElementById("pagination");
+  if (totalPages <= 1) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  pagination.innerHTML = "";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "‹ Prev";
+  prevBtn.className = "btn-small";
+  prevBtn.disabled = state.page === 1;
+  prevBtn.addEventListener("click", () => {
+    state.page -= 1;
+    renderRegistrations();
+  });
+  pagination.appendChild(prevBtn);
+
+  const label = document.createElement("span");
+  label.className = "page-label";
+  label.textContent = `Page ${state.page} of ${totalPages}`;
+  pagination.appendChild(label);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Next ›";
+  nextBtn.className = "btn-small";
+  nextBtn.disabled = state.page === totalPages;
+  nextBtn.addEventListener("click", () => {
+    state.page += 1;
+    renderRegistrations();
+  });
+  pagination.appendChild(nextBtn);
 }
 
 async function updateStatus(id, status) {
@@ -186,6 +263,7 @@ async function updateStatus(id, status) {
       method: "PATCH",
       body: JSON.stringify({ status }),
     });
+    state.lastUpdatedId = id; // triggers a highlight animation on re-render
     await loadRegistrations();
   } catch (err) {
     alert(`Couldn't update status: ${err.message}`);

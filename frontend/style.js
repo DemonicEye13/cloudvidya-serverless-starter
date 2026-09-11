@@ -201,6 +201,45 @@ button[type="submit"]:disabled { opacity: 0.6; cursor: default; }
 .feedback.success { color: #1b8a4c; }
 .feedback.error { color: #c0392b; }
 
+/* ---------- Search ---------- */
+
+#search-input {
+  margin-bottom: 12px;
+}
+
+/* ---------- Pagination ---------- */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.page-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pagination .btn-small:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+/* ---------- Just-updated highlight ---------- */
+
+.reg-card.just-updated {
+  animation: highlightPulse 1.1s var(--ease);
+}
+
+@keyframes highlightPulse {
+  0% { box-shadow: 0 0 0 0 rgba(91, 61, 246, 0.45); }
+  40% { box-shadow: 0 0 0 8px rgba(91, 61, 246, 0); }
+  100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+}
+
 /* ---------- Filters ---------- */
 
 .filters {

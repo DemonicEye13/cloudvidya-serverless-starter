@@ -62,12 +62,18 @@
     <!-- Organizer view: manage registrations -->
     <section id="organizer-view" class="card hidden">
       <h2>Registrations</h2>
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Search by event or student name..."
+      />
       <div class="filters">
         <select id="filter-status"></select>
         <select id="filter-category"></select>
-        <button id="refresh-btn">Refresh</button>
+        <button id="refresh-btn" title="Refresh">⟳</button>
       </div>
       <div id="registration-list"></div>
+      <div id="pagination" class="pagination"></div>
     </section>
   </main>
 
